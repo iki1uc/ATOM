@@ -1,1 +1,37 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>ATOM · ANKER · RESPO · iki1uc</title>
+</head>
+
+<body>
+
+<h1>ATOM · ANKER · RESPO</h1>
+
+<pre id="atom"></pre>
+<pre id="anker"></pre>
+<pre id="respo"></pre>
+
+<script type="module">
+import { ATOM } from "./atom.js";
+import { ANKER } from "./anker.js";
+import { RESPO } from "./respo.js";
+
+const atom = ATOM.init().excite(3).connect("WELT").connect("SCALE");
+const anker = ANKER.lock(atom);
+const respo = RESPO.update(atom, anker);
+
+document.getElementById("atom").textContent =
+    JSON.stringify(atom.info(), null, 2);
+
+document.getElementById("anker").textContent =
+    JSON.stringify(anker.info(), null, 2);
+
+document.getElementById("respo").textContent =
+    JSON.stringify(respo.info(), null, 2);
+</script>
+
+</body>
+</html>
 
