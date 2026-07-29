@@ -3,6 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <title>ANKER – S01 · iki1uc</title>
+<script type="module">
+import { ATOM } from "./atom.js";
+
+const a = ATOM.init();
+a.excite(2);
+a.connect("WELT.core");
+a.connect("SCALE.balance");
+
+document.getElementById("atom").textContent =
+    JSON.stringify(a.info(), null, 2);
+</script>
 
 <style>
 body { background:#000; color:#0f0; font-family:monospace; padding:40px; }
