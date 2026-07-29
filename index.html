@@ -2,34 +2,88 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>ATOM · ANKER · RESPO · iki1uc</title>
+<title>iki1uc · ATOM · ANKER · RESPO · Datenstand</title>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h1>ATOM · ANKER · RESPO</h1>
+<h1>iki1uc · ATOM · ANKER · RESPO · Datenstand</h1>
 
-<pre id="atom"></pre>
-<pre id="anker"></pre>
-<pre id="respo"></pre>
+<div class="panel">
+    <h2>ATOM</h2>
+    <pre id="atom"></pre>
+</div>
+
+<div class="panel">
+    <h2>ANKER</h2>
+    <pre id="anker"></pre>
+</div>
+
+<div class="panel">
+    <h2>RESPO</h2>
+    <pre id="respo"></pre>
+</div>
+
+<div class="panel">
+    <h2>Modul‑Datenstand (CSV)</h2>
+    <pre id="csv"></pre>
+</div>
+
+<div class="panel">
+    <h2>Dokumente</h2>
+    <ul>
+        <li><a href="docs/index.html">docs/index.html</a></li>
+        <li><a href="docs/id.html">docs/id.html</a></li>
+        <li><a href="docs/atom.html">docs/atom.html</a></li>
+    </ul>
+</div>
 
 <script type="module">
 import { ATOM } from "./atom.js";
 import { ANKER } from "./anker.js";
 import { RESPO } from "./respo.js";
 
-const atom = ATOM.init().excite(3).connect("WELT").connect("SCALE");
-const anker = ANKER.lock(atom);
-const respo = RESPO.update(atom, anker);
+/* -----------------------------
+   ATOM erzeugen
+----------------------------- */
+const atom = ATOM.init()
+    .excite(3)
+    .connect("WELT")
+    .connect("SCALE");
 
 document.getElementById("atom").textContent =
     JSON.stringify(atom.info(), null, 2);
 
+/* -----------------------------
+   ANKER koppeln
+----------------------------- */
+const anker = ANKER.lock(atom);
+
 document.getElementById("anker").textContent =
     JSON.stringify(anker.info(), null, 2);
 
+/* -----------------------------
+   RESPO aktualisieren
+----------------------------- */
+const respo = RESPO.update(atom, anker);
+
 document.getElementById("respo").textContent =
     JSON.stringify(respo.info(), null, 2);
+
+/* -----------------------------
+   CSV laden
+----------------------------- */
+fetch("modul-datenstand-4.csv")
+    .then(r => r.text())
+    .then(t => {
+        document.getElementById("csv").textContent = t;
+    })
+    .catch(e => {
+        document.getElementById("csv").textContent =
+            "Fehler beim Laden der CSV:\n" + e;
+    });
+
 </script>
 
 </body>
