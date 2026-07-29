@@ -1,0 +1,15 @@
+<script src="IDkoop.js"></script>
+<script src="IDneutral.js"></script>
+<script src="IDpook.js"></script>
+
+<script>
+function showID(mode) {
+    const map = {
+        koop: ID_KOOP,
+        neutral: ID_NEUTRAL,
+        pook: ID_POOK
+    };
+    const id = map[mode];
+    document.getElementById("id-info").innerText = id.info();
+}
+</script>
