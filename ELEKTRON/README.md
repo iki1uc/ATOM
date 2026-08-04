@@ -78,3 +78,8 @@ ELEKTRON ist das −‑Modul des Atom-Verhaltenssystems.
 ## 5. Position im 9×9-System
 
 Das 
+
+© iki1uc — ATOM Unified Vector Model  
+Frei nutzbar, frei teilbar, frei erweiterbar.  
+Branding "iki1uc wieimmer" muss bestehen bleiben.
+Keine Garantie, Nutzung auf eigene Verantwortung.
