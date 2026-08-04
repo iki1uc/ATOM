@@ -1,28 +1,96 @@
-# ANKER – Stabilisationsachse · iki1uc
+# ATOM – Systemübersicht
 
-## Zweck
-ANKER ist die Stabilisationsachse des iki1uc‑Systems.
-Es hält die Achsen IQ, QI, EVO, UPD, UPG, BIOS und CALC im korrekten Verhältnis.
+Dieses Repository enthält das vollständige ATOM‑System, bestehend aus acht Modulen und einem neunten Punkt, dem Atom selbst.  
+Das Atom ist der Kernbaustein, der durch Geo‑Form, Ebenen und Achsen in die Szene tritt.
 
-## Struktur
-- NAME: ANKER
-- ID: A01
-- Station: S01
-- Dimension: D4
-- Modus: erabel (neutral, operation möglich)
+---
 
-## Rolle
-ANKER stabilisiert, ohne selbst aktiv zu berechnen oder zu steuern.
-Es ist die neutrale Achse zwischen AXI, 6d und API.
+## 1. Module
 
-## Bindungen
-- AXI
-- 6d
-- 360
-- 100
-- 213 (REAL)
-- API
+### ELEKTRON  
+Äußere Schicht, leichte Struktur.
 
-## Status
-STATE = STABIL  
-READY = 100%
+### ENERGIE  
+Bewegungslogik, Impuls.
+
+### NEUTRON  
+Neutraler Kern, Stabilität.
+
+### PLUTRON  
+Schwere Kernlogik, Tiefe.
+
+### UPX  
+Struktur‑Achse (Geo‑Form).
+
+### UPY  
+Bedeutungs‑Achse (Score).
+
+### UPZ  
+Bewegungs‑Achse (Szene‑Pfad).
+
+### docs  
+Referenzen, Ebenen, Kernmodule.
+
+---
+
+## 2. Das Atom
+
+Das Atom besteht aus sechs Ebenen:
+
+1. Form  
+2. Bandbreite  
+3. Score  
+4. Gruppe  
+5. Kern  
+6. Datenstand  
+
+Diese Ebenen bilden den **Geo‑Vektor**, der das Atom in die Szene bringt.
+
+---
+
+## 3. Geo‑Vektor
+
+**Geo‑Vektor = (Form, Bandbreite, Score, Gruppe, Kern, Datenstand)**
+
+Der Geo‑Vektor wird durch die UP‑Achsen bewegt:
+
+- UPX → Struktur  
+- UPY → Bedeutung  
+- UPZ → Bewegung  
+
+---
+
+## 4. Continuum
+
+Das Continuum verbindet:
+
+Atom → Geo‑Vektor → UP‑Achsen → Szene
+
+Es wird durch:
+
+- `atom.js`  
+- `index.html`  
+- `anker.js`  
+
+aktiviert.
+
+---
+
+## 5. Der 9. Punkt
+
+Die acht Module bilden die Grundlage.  
+Der neunte Punkt ist das Atom selbst.  
+Es existiert nie allein, sondern immer im Bezug zu den acht Modulen.
+
+---
+
+## 6. Start
+
+Die Szene wird über `index.html` geladen.  
+Das Atom wird durch `atom.js` aktiviert und erhält seinen Geo‑Vektor.
+
+---
+
+## 7. Lizenz
+
+Open System – frei nutzbar.
