@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>ID · UPX</title>
+
+<style>
+body {
+    background:#000;
+    color:#0f0;
+    font-family:Consolas;
+    padding:40px;
+}
+
+/* UPX – System‑Kern‑Symbol */
+#upx {
+    width:230px;
+    height:230px;
+    margin:auto;
+    position:relative;
+    border:3px solid #0ff;
+    border-radius:50%;
+    box-shadow:0 0 30px #0ff inset;
+}
+
+/* Achsenlinien – System‑Cross */
+.axis {
+    position:absolute;
+    background:#0ff;
+    opacity:0.40;
+}
+
+/* Vertikal */
+#v {
+    width:3px;
+    height:230px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%);
+}
+
+/* Horizontal */
+#h {
+    width:230px;
+    height:3px;
+    top:50%;
+    left:0;
+    transform:translateY(-50%);
+}
+
+/* Diagonal */
+#d1 {
+    width:3px;
+    height:230px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%) rotate(45deg);
+}
+
+#d2 {
+    width:3px;
+    height:230px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%) rotate(-45deg);
+}
+
+/* UPX‑Kern */
+#core {
+    position:absolute;
+    width:60px;
+    height:60px;
+    background:#111;
+    border:3px solid #0ff;
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#0ff;
+    font-size:22px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>ID · UPX</h1>
+
+<div id="upx">
+    <div id="v" class="axis"></div>
+    <div id="h" class="axis"></div>
+    <div id="d1" class="axis"></div>
+    <div id="d2" class="axis"></div>
+    <div id="core">UPX</div>
+</div>
+
+<pre>
+ID = AXIS(UX)✦
+
+Achsen: N, S, E, W, UP, DOWN, IN, OUT
+Kern: UPX = Universal Pulse Cross
+System‑Neutralität · Achsen‑Kreuzung
+</pre>
+
+</body>
+</html>

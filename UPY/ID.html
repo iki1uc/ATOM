@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>ID · UPY</title>
+
+<style>
+body {
+    background:#000;
+    color:#0f0;
+    font-family:Consolas;
+    padding:40px;
+}
+
+/* Meta‑Score‑Symbol */
+#upy {
+    width:200px;
+    height:200px;
+    margin:auto;
+    position:relative;
+    border:3px solid #0af;
+    border-radius:50%;
+    box-shadow:0 0 25px #0af inset;
+}
+
+/* Achsenlinien (RUN8‑Meta‑Layer) */
+.axis {
+    position:absolute;
+    background:#0af;
+    opacity:0.35;
+}
+
+/* Vertikal */
+#v {
+    width:3px;
+    height:200px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%);
+}
+
+/* Horizontal */
+#h {
+    width:200px;
+    height:3px;
+    top:50%;
+    left:0;
+    transform:translateY(-50%);
+}
+
+/* Diagonal IN/OUT */
+#d1 {
+    width:3px;
+    height:200px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%) rotate(45deg);
+}
+
+#d2 {
+    width:3px;
+    height:200px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%) rotate(-45deg);
+}
+
+/* UPY‑Kern (Meta‑Yield) */
+#core {
+    position:absolute;
+    width:50px;
+    height:50px;
+    background:#111;
+    border:3px solid #0af;
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#0af;
+    font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>ID · UPY</h1>
+
+<div id="upy">
+    <div id="v" class="axis"></div>
+    <div id="h" class="axis"></div>
+    <div id="d1" class="axis"></div>
+    <div id="d2" class="axis"></div>
+    <div id="core">UPY</div>
+</div>
+
+<pre>
+ID = AXIS(U)◊
+
+Achsen: N, S, E, W, UP, DOWN, IN, OUT
+Kern: UPY = Universal Pulse Yield
+Meta‑Neutralität · Score‑Balance
+</pre>
+
+</body>
+</html>

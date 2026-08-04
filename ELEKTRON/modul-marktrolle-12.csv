@@ -1,0 +1,13 @@
+﻿Modul,Marktrolle,Cache‑Position,TP‑Relevanz
+XI,Stabil‑Vektor,nach Cache,TP‑6
+IX,Input‑Vektor,vor Cache,TP‑2
+X4,Multi‑Vektor,nach Cache,TP‑6
+IO,Eingang,vor Cache,TP‑4
+OI,Ausgang,nach Cache,TP‑4
+ALLIN,Vollinput,vor Cache,TP‑4
+ALLOUT,Vollausschüttung,nach Cache,TP‑4
+FIT,Passung,nach Cache,TP‑3
+FIX,Korrektur,nach Cache,TP‑3
+RDY,Bereitschaft,nach Cache,TP‑3
+MISS,Fehlallokation,nach Cache,TP‑3
+ERROR,Fehler,nach Cache,TP‑3

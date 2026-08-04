@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>ID · UPZ</title>
+
+<style>
+body {
+    background:#000;
+    color:#0f0;
+    font-family:Consolas;
+    padding:40px;
+}
+
+/* Hyper‑Score‑Symbol */
+#upz {
+    width:220px;
+    height:220px;
+    margin:auto;
+    position:relative;
+    border:3px solid #7f0;
+    border-radius:50%;
+    box-shadow:0 0 30px #7f0 inset;
+}
+
+/* Achsenlinien – Hyper‑Layer */
+.axis {
+    position:absolute;
+    background:#7f0;
+    opacity:0.35;
+}
+
+/* Vertikal */
+#v {
+    width:3px;
+    height:220px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%);
+}
+
+/* Horizontal */
+#h {
+    width:220px;
+    height:3px;
+    top:50%;
+    left:0;
+    transform:translateY(-50%);
+}
+
+/* Diagonal IN/OUT */
+#d1 {
+    width:3px;
+    height:220px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%) rotate(45deg);
+}
+
+#d2 {
+    width:3px;
+    height:220px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%) rotate(-45deg);
+}
+
+/* UPZ‑Kern */
+#core {
+    position:absolute;
+    width:55px;
+    height:55px;
+    background:#111;
+    border:3px solid #7f0;
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#7f0;
+    font-size:20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>ID · UPZ</h1>
+
+<div id="upz">
+    <div id="v" class="axis"></div>
+    <div id="h" class="axis"></div>
+    <div id="d1" class="axis"></div>
+    <div id="d2" class="axis"></div>
+    <div id="core">UPZ</div>
+</div>
+
+<pre>
+ID = AXIS(UZ)⟡
+
+Achsen: N, S, E, W, UP, DOWN, IN, OUT
+Kern: UPZ = Universal Pulse Zenith
+Hyper‑Neutralität · Score‑Zenith
+</pre>
+
+</body>
+</html>

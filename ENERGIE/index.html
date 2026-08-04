@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>ENERGIE · DEMO</title>
+
+<style>
+body { background:#000; color:#0f0; font-family:Consolas; padding:40px; }
+.scene {
+    display: grid;
+    grid-template-columns: repeat(3, 160px);
+    grid-template-rows: repeat(3, 160px);
+    gap: 10px;
+    margin: 40px auto;
+}
+.cell {
+    border: 2px solid #6cf;
+    background:#111;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+#center {
+    background:#222;
+    border:3px solid #0ff;
+}
+</style>
+</head>
+
+<body>
+
+<h1>ENERGIE · DEMO</h1>
+
+<div class="scene">
+    <div class="cell">UP</div>
+    <div class="cell"></div>
+    <div class="cell">DOWN</div>
+
+    <div class="cell">W</div>
+    <div class="cell" id="center">UFO = 9^9</div>
+    <div class="cell">E</div>
+
+    <div class="cell">IN</div>
+    <div class="cell"></div>
+    <div class="cell">OUT</div>
+</div>
+
+<pre id="out">Lade MOVE…</pre>
+
+<script>
+fetch("MOVE.html")
+    .then(r => r.text())
+    .then(t => document.getElementById("out").textContent = t);
+</script>
+
+</body>
+</html>

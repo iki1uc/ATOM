@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>PLUTRON · + ENERGIE EVO</title>
+
+<style>
+body {
+    background:#000;
+    color:#0f0;
+    font-family:Consolas;
+    padding:40px;
+    text-align:center;
+}
+
+/* Szene */
+#scene {
+    width:340px;
+    height:340px;
+    margin:auto;
+    position:relative;
+    border:3px solid #0ff;
+    border-radius:50%;
+    box-shadow:0 0 35px #0ff inset, 0 0 25px #0ff;
+}
+
+/* Achsenlinien */
+.axis {
+    position:absolute;
+    background:#0ff;
+    opacity:0.45;
+    transition:opacity 0.25s;
+}
+
+/* Vertikal */
+#v {
+    width:3px;
+    height:340px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%);
+}
+
+/* Horizontal */
+#h {
+    width:340px;
+    height:3px;
+    top:50%;
+    left:0;
+    transform:translateY(-50%);
+}
+
+/* Diagonal IN/OUT */
+#d1 {
+    width:3px;
+    height:340px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%) rotate(45deg);
+}
+
+#d2 {
+    width:3px;
+    height:340px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%) rotate(-45deg);
+}
+
+/* PLUTRON-Kern (+) */
+#core {
+    position:absolute;
+    width:70px;
+    height:70px;
+    background:#111;
+    border:3px solid #0ff;
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#0ff;
+    font-size:28px;
+    animation:pulse 1.4s infinite;
+}
+
+/* Pulsation – hyper vital */
+@keyframes pulse {
+    0%   { transform:translate(-50%, -50%) scale(1);   border-color:#0ff; color:#0ff; }
+    50%  { transform:translate(-50%, -50%) scale(1.45); border-color:#ff0; color:#ff0; }
+    100% { transform:translate(-50%, -50%) scale(1);   border-color:#0ff; color:#0ff; }
+}
+
+/* Energie-Rotation – schneller als NEUTRON */
+#energy {
+    position:absolute;
+    width:300px;
+    height:300px;
+    border:2px dashed #0ff;
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    animation:rotate540 4s linear infinite;
+}
+
+@keyframes rotate540 {
+    from { transform:translate(-50%, -50%) rotate(0deg); }
+    to   { transform:translate(-50%, -50%) rotate

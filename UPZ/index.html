@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>UPZ · HYPER ZENITH EVO</title>
+
+<style>
+body {
+    background:#000;
+    color:#0f0;
+    font-family:Consolas;
+    padding:40px;
+    text-align:center;
+}
+
+/* Szene */
+#scene {
+    width:330px;
+    height:330px;
+    margin:auto;
+    position:relative;
+    border:2px solid #7f0;
+    border-radius:50%;
+    box-shadow:0 0 25px #7f0 inset;
+}
+
+/* Achsenlinien – Hyper‑leicht */
+.axis {
+    position:absolute;
+    background:#7f0;
+    opacity:0.22;
+    transition:opacity 0.4s;
+}
+
+/* Vertikal */
+#v {
+    width:2px;
+    height:330px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%);
+}
+
+/* Horizontal */
+#h {
+    width:330px;
+    height:2px;
+    top:50%;
+    left:0;
+    transform:translateY(-50%);
+}
+
+/* Diagonal IN/OUT */
+#d1 {
+    width:2px;
+    height:330px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%) rotate(45deg);
+}
+
+#d2 {
+    width:2px;
+    height:330px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%) rotate(-45deg);
+}
+
+/* UPZ‑Kern */
+#core {
+    position:absolute;
+    width:65px;
+    height:65px;
+    background:#111;
+    border:2px solid #7f0;
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#7f0;
+    font-size:22px;
+    animation:pulse 4s infinite;
+}
+
+/* Hyper‑Pulse – sehr smooth */
+@keyframes pulse {
+    0%   { transform:translate(-50%, -50%) scale(1);   color:#7f0; }
+    50%  { transform:translate(-50%, -50%) scale(1.22); color:#bffb7f; }
+    100% { transform:translate(-50%, -50%) scale(1);   color:#7f0; }
+}
+
+/* Hyper‑Rotation – ruhig, hoch */
+#energy {
+    position:absolute;
+    width:280px;
+    height:280px;
+    border:2px dashed #7f0;
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    animation:rotate540 12s linear infinite;
+}
+
+@keyframes rotate540 {
+    from { transform:translate(-50%, -50%) rotate(0deg); }
+    to   { transform:translate(-50%, -50%) rotate(540deg); }
+}
+
+/* Hyper‑Aura */
+#aura {
+    position:absolute;
+    width:330px;
+    height:330px;
+    border-radius:50%;
+    top:0;
+    left:0;
+    background:radial-gradient(circle,
+        rgba(127,255,0,0.18) 0%,
+        rgba(0,0,0,0.8) 70%);
+    animation:auraPulse 6s infinite;
+}
+
+@keyframes auraPulse {
+    0%   { opacity:0.18; }
+    50%  { opacity:0.33; }
+    100% { opacity:0.18; }
+}
+</style>
+</head>
+
+<body>
+
+<h1>UPZ · HYPER ZENITH EVO</h1>
+
+<div id="scene">
+    <div id="aura"></div>
+    <div id="energy"></div>
+    <div id="v" class="axis"></div>
+    <div id="h" class="axis"></div>
+    <div id="d1" class="axis"></div>
+    <div id="d2" class="axis"></div>
+    <div id="core">UPZ</div>
+</div>
+
+<pre>
+RUN8 = N S E W UP DOWN IN OUT
+UFO = 9^9
+UPZ = √(UFI · EFE)

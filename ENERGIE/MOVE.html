@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>MOVE · ENGINE</title>
+
+<style>
+body { background:#000; color:#0f0; font-family:Consolas; padding:40px; }
+pre { background:#111; padding:20px; border-left:3px solid #6cf; }
+</style>
+</head>
+
+<body>
+
+<h1>MOVE · ENGINE</h1>
+<pre id="out">Berechne 9×9…</pre>
+
+<script>
+// UFO = 9^9 (Konstante)
+const UFO = Math.pow(9, 9);
+
+// 6-BLOCK Energie
+const HOME = 90;
+const TRANS = 90;
+const WARB = 90;
+const KANAL = 90;
+const CONT = 180;
+
+// Gesamtenergie
+const TOTAL = HOME + TRANS + WARB + KANAL + CONT;
+
+// Energie pro Ziel
+const PER_AXIS = TOTAL / 8;
+
+// RUN8 Achsen
+const RUN8 = ["N","S","E","W","UP","DOWN","IN","OUT"];
+
+// MOVE Transformation
+const MOVE = RUN8.map(axis => ({
+    ufo: UFO,
+    axis: axis,
+    energy: PER_AXIS,
+    vector: `VECTOR(${axis})`,
+    tunnel: `WURMLOCH(${axis})`,
+    continium: `RUN(${axis})`
+}));
+
+document.getElementById("out").textContent =
+    JSON.stringify({ UFO, TOTAL, PER_AXIS, MOVE }, null, 2);
+</script>
+
+</body>
+</html>

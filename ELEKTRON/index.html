@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>ELEKTRON · − ENERGIE EVO</title>
+
+<style>
+body {
+    background:#000;
+    color:#0f0;
+    font-family:Consolas;
+    padding:40px;
+    text-align:center;
+}
+
+/* Szene */
+#scene {
+    width:340px;
+    height:340px;
+    margin:auto;
+    position:relative;
+    border:3px solid #f00;
+    border-radius:50%;
+    box-shadow:0 0 35px #f00 inset, 0 0 25px #f00;
+}
+
+/* Achsenlinien */
+.axis {
+    position:absolute;
+    background:#f00;
+    opacity:0.45;
+    transition:opacity 0.25s;
+}
+
+/* Vertikal */
+#v {
+    width:3px;
+    height:340px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%);
+}
+
+/* Horizontal */
+#h {
+    width:340px;
+    height:3px;
+    top:50%;
+    left:0;
+    transform:translateY(-50%);
+}
+
+/* Diagonal IN/OUT */
+#d1 {
+    width:3px;
+    height:340px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%) rotate(45deg);
+}
+
+#d2 {
+    width:3px;
+    height:340px;
+    left:50%;
+    top:0;
+    transform:translateX(-50%) rotate(-45deg);
+}
+
+/* ELEKTRON-Kern (−) */
+#core {
+    position:absolute;
+    width:70px;
+    height:70px;
+    background:#111;
+    border:3px solid #f00;
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#f00;
+    font-size:28px;
+    animation:pulse 1.2s infinite;
+}
+
+/* Pulsation – hyper minus */
+@keyframes pulse {
+    0%   { transform:translate(-50%, -50%) scale(1);   border-color:#f00; color:#f00; }
+    50%  { transform:translate(-50%, -50%) scale(1.45); border-color:#ff0; color:#ff0; }
+    100% { transform:translate(-50%, -50%) scale(1);   border-color:#f00; color:#f00; }
+}
+
+/* Energie-Rotation – schnellste Version */
+#energy {
+    position:absolute;
+    width:300px;
+    height:300px;
+    border:2px dashed #f00;
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    animation:rotate540 3s linear infinite;
+}
+
+@keyframes rotate540 {
+    from { transform:translate(-50%, -50%) rotate(0deg); }
+    to   { transform:translate(-50%, -50%) rotate(540deg); }
+}
+
+/* Minus-Aura */
+#aura {
+    position:absolute;
+    width:340px;
+    height:340px;
+    border-radius:50%;
+    top:0;
+    left:0;
+    background:radial-gradient(circle,
+        rgba(255,0,0,0.25) 0%,
+        rgba(0,0,0,0.8) 70%);
+    animation:auraPulse 2.4s infinite;
+}
+
+@keyframes auraPulse {
+    0%   { opacity:0.25; }
+    50%  { opacity:0.55; }
+    100% { opacity:0.25; }
+}
+</style>
+</head>
+
+<body>
+
+<h1>ELEKTRON · − ENERGIE EVO</h1>
+
+<div id="scene">
+    <div id="aura"></div>
+    <div id="energy"></div>
+    <div id="v" class="axis"></div>
+    <div id="h" class="axis"></div>
+    <div id="d1" class="axis"></div>
+    <div id="d2" class="axis"></div>
+    <div id="core">−</div>
+</div>
+
+<pre>
+RUN8 = N S E W UP DOWN IN OUT
+UFO = 9^9
+VLOU = 81 × 3
+KOOP · POOK · 0000
+540° Energie → ELEKTRON (−)
+Impuls · Bewegung · Aktivität
+</pre>
+
+<script>
+// Achsen-Flimmern – aktiv, impulsiv
+setInterval(() => {
+    const axes = document.querySelectorAll('.axis');
+    axes.forEach(a => a.style.opacity = Math.random() * 0.9 + 0.2);
+}, 160);
+
+// VLOU-Puls (81 × 3) – starke Minus-Farbzyklen
+let vlo = 0;
+setInterval(() => {
+    vlo = (vlo + 1) % 81;
+    document.getElementById("core").style.color =
+        vlo % 3 === 0 ? "#f00" :
+        vlo % 3 === 1 ? "#ff0" :
+                        "#fff";
+}, 110);
+</script>
+
+</body>
+</html>

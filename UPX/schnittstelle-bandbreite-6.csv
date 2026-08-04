@@ -1,0 +1,7 @@
+﻿Schnittstelle,Bandbreite,Beste Nutzung,Kompatibilität,Klasse
+OCuLink,64 Gbit/s,"eGPU, NVMe",Speziell,A
+M.2 NVMe,32–64 Gbit/s,SSD,Universell,A
+M.2 → GPU,PCIe‑4.0‑x4,GPU,DIY,A
+Thunderbolt 5,80–120 Gbit/s,"eGPU, NVMe",Sehr hoch,B
+Thunderbolt 3/4,40 Gbit/s,NVMe extern,Hoch,B
+PCIe‑Lane‑Split,variabel,Multi‑GPU/NVMe,Plattformabhängig,C
