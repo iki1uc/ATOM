@@ -1,88 +1,89 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<title>iki1uc · ATOM · ANKER · RESPO · Datenstand</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>ATOM – Szene</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="anker.js"></script>
+    <script src="atom.js"></script>
+    <script src="respo.js"></script>
+
+    <!-- ID-System -->
+    <script src="IDkoop.js"></script>
+    <script src="IDneutral.js"></script>
+    <script src="IDpook.js"></script>
 </head>
 
 <body>
 
-<h1>iki1uc · ATOM · ANKER · RESPO · Datenstand</h1>
+<div id="scene">
 
-<div class="panel">
-    <h2>ATOM</h2>
-    <pre id="atom"></pre>
+    <!-- ATOM Zentrum -->
+    <div id="atom-core">
+        ATOM
+    </div>
+
+    <!-- Drei Ebenen -->
+    <div class="layer" id="layer-elektron"></div>
+    <div class="layer" id="layer-neutron"></div>
+    <div class="layer" id="layer-plutron"></div>
+
+    <!-- ID Anzeige -->
+    <div id="id-info"></div>
+
 </div>
 
-<div class="panel">
-    <h2>ANKER</h2>
-    <pre id="anker"></pre>
-</div>
+<script>
 
-<div class="panel">
-    <h2>RESPO</h2>
-    <pre id="respo"></pre>
-</div>
+    /* Farb-Engine */
+    function atomColor(type, mode, nuanceValue = 0) {
+        const colors = {
+            ELEKTRON: { active: "#4AF0FF", passive: "#1C6E75" },
+            NEUTRON:  { active: "#C8C8C8", passive: "#6E6E6E" },
+            PLUTRON:  { active: "#FF4A4A", passive: "#7A1C1C" }
+        };
 
-<div class="panel">
-    <h2>Modul‑Datenstand (CSV)</h2>
-    <pre id="csv"></pre>
-</div>
+        let base = colors[type][mode];
+        let nuance = Math.floor(nuanceValue % 255).toString(16).padStart(2, "0");
+        return base + nuance;
+    }
 
-<div class="panel">
-    <h2>Dokumente</h2>
-    <ul>
-        <li><a href="docs/index.html">docs/index.html</a></li>
-        <li><a href="docs/id.html">docs/id.html</a></li>
-        <li><a href="docs/atom.html">docs/atom.html</a></li>
-    </ul>
-</div>
+    /* Mathematischer Weiterwurf */
+    function weiterwurf(axisValue) {
+        return Math.sin(axisValue * Math.PI) * 255;
+    }
 
-<script type="module">
-import { ATOM } from "./atom.js";
-import { ANKER } from "./anker.js";
-import { RESPO } from "./respo.js";
+    /* UP-Achsen simuliert */
+    const UPX = { value: 0.42 };
+    const UPY = { value: 0.77 };
+    const UPZ = { value: 0.13 };
 
-/* -----------------------------
-   ATOM erzeugen
------------------------------ */
-const atom = ATOM.init()
-    .excite(3)
-    .connect("WELT")
-    .connect("SCALE");
+    /* Ebenen aktualisieren */
+    function updateLayers() {
+        document.getElementById("layer-elektron").style.backgroundColor =
+            atomColor("ELEKTRON", "active", weiterwurf(UPX.value));
 
-document.getElementById("atom").textContent =
-    JSON.stringify(atom.info(), null, 2);
+        document.getElementById("layer-neutron").style.backgroundColor =
+            atomColor("NEUTRON", "active", weiterwurf(UPY.value));
 
-/* -----------------------------
-   ANKER koppeln
------------------------------ */
-const anker = ANKER.lock(atom);
+        document.getElementById("layer-plutron").style.backgroundColor =
+            atomColor("PLUTRON", "active", weiterwurf(UPZ.value));
+    }
 
-document.getElementById("anker").textContent =
-    JSON.stringify(anker.info(), null, 2);
+    updateLayers();
 
-/* -----------------------------
-   RESPO aktualisieren
------------------------------ */
-const respo = RESPO.update(atom, anker);
+    /* ID-System */
+    function showID(mode) {
+        const map = {
+            koop: ID_KOOP,
+            neutral: ID_NEUTRAL,
+            pook: ID_POOK
+        };
+        const id = map[mode];
+        document.getElementById("id-info").innerText = id.info();
+    }
 
-document.getElementById("respo").textContent =
-    JSON.stringify(respo.info(), null, 2);
-
-/* -----------------------------
-   CSV laden
------------------------------ */
-fetch("modul-datenstand-4.csv")
-    .then(r => r.text())
-    .then(t => {
-        document.getElementById("csv").textContent = t;
-    })
-    .catch(e => {
-        document.getElementById("csv").textContent =
-            "Fehler beim Laden der CSV:\n" + e;
-    });
+    showID("neutral");
 
 </script>
 
