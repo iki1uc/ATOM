@@ -135,3 +135,8 @@ ENERGIE zeigt:
 - wie Kontinuum (RUN) sichtbar wird
 
 Es ist ein Sci‑Fi‑Mathematik‑System mit echter Funktion.
+
+© iki1uc — ATOM Unified Vector Model  
+Frei nutzbar, frei teilbar, frei erweiterbar.  
+Branding "iki1uc wieimmer" muss bestehen bleiben.
+Keine Garantie, Nutzung auf eigene Verantwortung.
