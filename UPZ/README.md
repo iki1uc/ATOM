@@ -92,3 +92,8 @@ UPZ ist der Hyper‑Score des 9×9‑Systems.
 - **score-bedeutung-3.csv** – Score‑Matrix
 
 UPZ ist Modul 6/9 des 9×9‑Systems.
+
+© iki1uc — ATOM Unified Vector Model  
+Frei nutzbar, frei teilbar, frei erweiterbar.  
+Branding "iki1uc wieimmer" muss bestehen bleiben.
+Keine Garantie, Nutzung auf eigene Verantwortung.
