@@ -1,32 +1,54 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <title>ATOM – Szene</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="anker.js"></script>
-    <script src="atom.js"></script>
-    <script src="respo.js"></script>
+<meta charset="UTF-8">
+<title>ATOM · UNIVERSAL SZENE</title>
 
-    <!-- ID-System -->
-    <script src="IDkoop.js"></script>
-    <script src="IDneutral.js"></script>
-    <script src="IDpook.js"></script>
+<link rel="stylesheet" href="style.css">
+
+<!-- System-Module -->
+<script src="anker.js"></script>
+<script src="atom.js"></script>
+<script src="respo.js"></script>
+
+<!-- ID-System -->
+<script src="IDkoop.js"></script>
+<script src="IDneutral.js"></script>
+<script src="IDpook.js"></script>
 </head>
 
 <body>
 
-<div id="scene">
+<h1>ATOM · UNIVERSAL SZENE</h1>
+
+<div id="universe">
+
+    <!-- UFO / RUN8 / 540° ENGINE -->
+    <div id="ufo-core">
+        UFO = 9^9<br>
+        RUN8 · 540°
+    </div>
 
     <!-- ATOM Zentrum -->
     <div id="atom-core">
         ATOM
     </div>
 
-    <!-- Drei Ebenen -->
+    <!-- ATOM Ebenen -->
     <div class="layer" id="layer-elektron"></div>
     <div class="layer" id="layer-neutron"></div>
     <div class="layer" id="layer-plutron"></div>
+
+    <!-- RUN8 Achsen -->
+    <div id="axis-up" class="axis">UP</div>
+    <div id="axis-down" class="axis">DOWN</div>
+    <div id="axis-west" class="axis">W</div>
+    <div id="axis-east" class="axis">E</div>
+    <div id="axis-in" class="axis">IN</div>
+    <div id="axis-out" class="axis">OUT</div>
+
+    <!-- MOVE Vektor -->
+    <pre id="move-data">MOVE wird geladen…</pre>
 
     <!-- ID Anzeige -->
     <div id="id-info"></div>
@@ -35,57 +57,31 @@
 
 <script>
 
-    /* Farb-Engine */
-    function atomColor(type, mode, nuanceValue = 0) {
-        const colors = {
-            ELEKTRON: { active: "#4AF0FF", passive: "#1C6E75" },
-            NEUTRON:  { active: "#C8C8C8", passive: "#6E6E6E" },
-            PLUTRON:  { active: "#FF4A4A", passive: "#7A1C1C" }
-        };
+/* UFO / RUN8 / 540° ENGINE */
+const UFO = Math.pow(9, 9);
+const ENERGY = 540;
+const RUN8 = ["N","S","E","W","UP","DOWN","IN","OUT"];
 
-        let base = colors[type][mode];
-        let nuance = Math.floor(nuanceValue % 255).toString(16).padStart(2, "0");
-        return base + nuance;
-    }
+/* Farb-Engine */
+function atomColor(type, mode, nuanceValue = 0) {
+    const colors = {
+        ELEKTRON: { active: "#4AF0FF", passive: "#1C6E75" },
+        NEUTRON:  { active: "#C8C8C8", passive: "#6E6E6E" },
+        PLUTRON:  { active: "#FF4A4A", passive: "#7A1C1C" }
+    };
+    let base = colors[type][mode];
+    let nuance = Math.floor(nuanceValue % 255).toString(16).padStart(2, "0");
+    return base + nuance;
+}
 
-    /* Mathematischer Weiterwurf */
-    function weiterwurf(axisValue) {
-        return Math.sin(axisValue * Math.PI) * 255;
-    }
+/* Mathematischer Weiterwurf */
+function weiterwurf(v) {
+    return Math.sin(v * Math.PI) * 255;
+}
 
-    /* UP-Achsen simuliert */
-    const UPX = { value: 0.42 };
-    const UPY = { value: 0.77 };
-    const UPZ = { value: 0.13 };
+/* UP-Achsen */
+const UPX = { value: 0.42 };
+const UPY = { value: 0.77 };
+const UPZ = { value: 0.13 };
 
-    /* Ebenen aktualisieren */
-    function updateLayers() {
-        document.getElementById("layer-elektron").style.backgroundColor =
-            atomColor("ELEKTRON", "active", weiterwurf(UPX.value));
-
-        document.getElementById("layer-neutron").style.backgroundColor =
-            atomColor("NEUTRON", "active", weiterwurf(UPY.value));
-
-        document.getElementById("layer-plutron").style.backgroundColor =
-            atomColor("PLUTRON", "active", weiterwurf(UPZ.value));
-    }
-
-    updateLayers();
-
-    /* ID-System */
-    function showID(mode) {
-        const map = {
-            koop: ID_KOOP,
-            neutral: ID_NEUTRAL,
-            pook: ID_POOK
-        };
-        const id = map[mode];
-        document.getElementById("id-info").innerText = id.info();
-    }
-
-    showID("neutral");
-
-</script>
-
-</body>
-</html>
+/* Ebenen aktualisieren
