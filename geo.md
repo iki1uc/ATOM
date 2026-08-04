@@ -70,3 +70,8 @@ Die acht Module bilden die Grundlage:
 
 Der **9. Punkt** ist das Atom selbst.  
 Es existiert nie allein, sondern immer im Bezug zu den acht Modulen.
+
+© iki1uc — ATOM Unified Vector Model  
+Frei nutzbar, frei teilbar, frei erweiterbar.  
+Branding "iki1uc wieimmer" muss bestehen bleiben.
+Keine Garantie, Nutzung auf eigene Verantwortung.
