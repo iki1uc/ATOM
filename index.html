@@ -2,86 +2,43 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>ATOM · UNIVERSAL SZENE</title>
-
+<title>ATOM · FORMEL SZENE</title>
 <link rel="stylesheet" href="style.css">
-
-<!-- System-Module -->
-<script src="anker.js"></script>
-<script src="atom.js"></script>
-<script src="respo.js"></script>
-
-<!-- ID-System -->
-<script src="IDkoop.js"></script>
-<script src="IDneutral.js"></script>
-<script src="IDpook.js"></script>
 </head>
 
 <body>
 
-<h1>ATOM · UNIVERSAL SZENE</h1>
+<h1>ATOM · FORMEL SZENE</h1>
 
-<div id="universe">
+<div id="atom-scene">
 
-    <!-- UFO / RUN8 / 540° ENGINE -->
-    <div id="ufo-core">
-        UFO = 9^9<br>
-        RUN8 · 540°
-    </div>
+    <!-- Zentrum -->
+    <div class="node core">◉</div>
 
-    <!-- ATOM Zentrum -->
-    <div id="atom-core">
-        ATOM
-    </div>
+    <!-- Erste Ebene -->
+    <div class="node e3">3</div>
+    <div class="node e9">9</div>
 
-    <!-- ATOM Ebenen -->
-    <div class="layer" id="layer-elektron"></div>
-    <div class="layer" id="layer-neutron"></div>
-    <div class="layer" id="layer-plutron"></div>
+    <!-- Zweite Ebene -->
+    <div class="node ufo">◎</div>
 
-    <!-- RUN8 Achsen -->
-    <div id="axis-up" class="axis">UP</div>
-    <div id="axis-down" class="axis">DOWN</div>
-    <div id="axis-west" class="axis">W</div>
-    <div id="axis-east" class="axis">E</div>
-    <div id="axis-in" class="axis">IN</div>
-    <div id="axis-out" class="axis">OUT</div>
+    <!-- Dritte Ebene -->
+    <div class="node plutron">◆</div>
+    <div class="node neutron">▣</div>
+    <div class="node elektron">△</div>
 
-    <!-- MOVE Vektor -->
-    <pre id="move-data">MOVE wird geladen…</pre>
-
-    <!-- ID Anzeige -->
-    <div id="id-info"></div>
+    <!-- Energie-Sequenz -->
+    <div class="node seq3">3</div>
+    <div class="node seq9">9</div>
+    <div class="node seq27">27</div>
+    <div class="node seq81">81</div>
+    <div class="node seq756">756</div>
 
 </div>
 
-<script>
+<script src="atom.js"></script>
+<script src="respo.js"></script>
+<script src="anker.js"></script>
 
-/* UFO / RUN8 / 540° ENGINE */
-const UFO = Math.pow(9, 9);
-const ENERGY = 540;
-const RUN8 = ["N","S","E","W","UP","DOWN","IN","OUT"];
-
-/* Farb-Engine */
-function atomColor(type, mode, nuanceValue = 0) {
-    const colors = {
-        ELEKTRON: { active: "#4AF0FF", passive: "#1C6E75" },
-        NEUTRON:  { active: "#C8C8C8", passive: "#6E6E6E" },
-        PLUTRON:  { active: "#FF4A4A", passive: "#7A1C1C" }
-    };
-    let base = colors[type][mode];
-    let nuance = Math.floor(nuanceValue % 255).toString(16).padStart(2, "0");
-    return base + nuance;
-}
-
-/* Mathematischer Weiterwurf */
-function weiterwurf(v) {
-    return Math.sin(v * Math.PI) * 255;
-}
-
-/* UP-Achsen */
-const UPX = { value: 0.42 };
-const UPY = { value: 0.77 };
-const UPZ = { value: 0.13 };
-
-/* Ebenen aktualisieren
+</body>
+</html>
