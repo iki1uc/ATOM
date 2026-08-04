@@ -94,3 +94,8 @@ Das Atom wird durch `atom.js` aktiviert und erhält seinen Geo‑Vektor.
 ## 7. Lizenz
 
 Open System – frei nutzbar.
+
+© iki1uc — ATOM Unified Vector Model  
+Frei nutzbar, frei teilbar, frei erweiterbar.  
+Branding "iki1uc wieimmer" muss bestehen bleiben.
+Keine Garantie, Nutzung auf eigene Verantwortung.
