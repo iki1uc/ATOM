@@ -102,3 +102,8 @@ PLUTRON bildet die +‑Seite dieser erweiterten Atomstruktur.
 - **modul-marktrolle-12.csv** – Rollenmatrix
 
 PLUTRON ist Modul 2/3 des Atom-Verhaltenssystems.
+
+© iki1uc — ATOM Unified Vector Model  
+Frei nutzbar, frei teilbar, frei erweiterbar.  
+Branding "iki1uc wieimmer" muss bestehen bleiben.
+Keine Garantie, Nutzung auf eigene Verantwortung.
