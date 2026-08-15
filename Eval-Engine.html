@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>3x3 Eval — QI / IQQ · arg · xarg · arg3te</title>
+<style>
+  body{background:#000;color:#0f0;font-family:Consolas,monospace;padding:18px}
+  .card{background:#051; border:1px solid #083; padding:12px;border-radius:8px; max-width:980px}
+  h1{color:#6cf;margin:0 0 10px}
+  label{display:block;margin-top:8px}
+  textarea{width:100%;height:64px;background:#001;border:1px solid #064;color:#9f9;padding:8px}
+  input[type=range]{width:100%}
+  .row{display:flex;gap:12px;align-items:flex-start}
+  .col{flex:1}
+  .out{background:#002;border:1px solid #036;padding:10px;margin-top:10px;white-space:pre-wrap}
+  button{background:#6cf;color:#000;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;margin-top:10px}
+  .small{font-size:13px;color:#8f8}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>3×3 Eval · QI / IQQ Engine</h1>
+    <div class="small">Wähle eine TMP‑Sprache (4 auswählbar), gib drei Respos ein (Text + Konfidenz), stell QI und IQQ ein und klicke «Berechne» — das System liefert arg, xarg, arg3te, Formelansicht und eine textuelle Interpretation.</div>
+
+    <label>TMP‑Sprache (4‑fach auswählbar):</label>
+    <div class="row">
+      <select id="lang" class="col">
+        <option value="DE">Deutsch (DE)</option>
+        <option value="TR">Türkçe (TR)</option>
+        <option value="EN">English (EN)</option>
+        <option value="ES">Español (ES)</option>
+      </select>
+      <div class="col small">TMP‑gesteuert: wähle das kontextuelle Set, verändert Standardgewichte</div>
+    </div>
+
+    <hr style="border-color:#033"/>
+
+    <div class="row">
+      <div class="col">
+        <label>Respo 1 (Text)</label>
+        <textarea id="r1">Antwort 1 — kurze Deutung / Fakten</textarea>
+        <label>Konfidenz 1: <span id="c1v">0.70</span></label>
+        <input id="c1" type="range" min="0" max="1" step="0.01" value="0.7" />
+      </div>
+      <div class="col">
+        <label>Respo 2 (Text)</label>
+        <textarea id="r2">Antwort 2 — alternative Deutung</textarea>
+        <label>Konfidenz 2: <span id="c2v">0.50</span></label>
+        <input id="c2" type="range" min="0" max="1" step="0.01" value="0.5" />
+      </div>
+      <div class="col">
+        <label>Respo 3 (Text)</label>
+        <textarea id="r3">Antwort 3 — kreative / künstlerische Sicht</textarea>
+        <label>Konfidenz 3: <span id="c3v">0.30</span></label>
+        <input id="c3" type="range" min="0" max="1" step="0.01" value="0.3" />
+      </div>
+    </div>
+
+    <hr style="border-color:#033"/>
+
+    <label>QI (Qualitätsindex, 0..1)</label>
+    <input id="qi" type="range" min="0" max="1" step="0.01" value="0.65" />
+    <label>IQQ (Qualifier / Inverse, 0..1)</label>
+    <input id="iqq" type="range" min="0" max="1" step="0.01" value="0.35" />
+
+    <div style="margin-top:8px" class="small">
+      Formel (vereinfachte Standard‑Version):<br>
+      base = mean(confidences)  
+      maxc = max(confidences)  
+      var = maxc - min(confidences)  
+      combined = clamp(QI*base + (1−IQQ)*maxc, 0, 1)  
+      arg = combined  
+      xarg = var  
+      arg3te = combined * (1 − var)
+    </div>
+
+    <button id="compute">Berechne arg / xarg / arg3te</button>
+    <button id="export">Export JSON</button>
+
+    <div id="result" class="out">Ergebnis erscheint hier …</div>
+    <div id="explain" class="out" style="margin-top:8px">Textuelle Deutung erscheint hier …</div>
+  </div>
+
+<script>
+  // Helpers
+  const $ = id => document.getElementById(id);
+  function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
+  function clamp(v,min=0,max=1){ return Math.max(min, Math.min(max, v)); }
+
+  // DOM bindings for slider labels
+  ['c1','c2','c3','qi','iqq'].forEach(id=>{
+    const el = $(id);
+    el.addEventListener('input', ()=> {
+      if(id.startsWith('c')) $(id+'v').textContent = el.value;
+      if(id==='qi' || id==='iqq') {} // labels not shown
+    });
+  });
+
+  function compute(){
+    const lang = $('lang').value;
+    const r = [
+      { text: $('r1').value.trim(), conf: Number($('c1').value) },
+      { text: $('r2').value.trim(), conf: Number($('c2').value) },
+      { text: $('r3').value.trim(), conf: Number($('c3').value) }
+    ];
+    const qi = Number($('qi').value);
+    const iqq = Number($('iqq').value);
+
+    const confs = r.map(x=>x.conf);
+    const base = mean(confs);
+    const maxc = Math.max(...confs);
+    const minc = Math.min(...confs);
+    const variance = maxc - minc; // spread
+    // combined formula (tunable)
+    const combined = clamp(qi*base + (1 - iqq)*maxc, 0, 1);
+    const arg = Number(combined.toFixed(4));
+    const xarg = Number(variance.toFixed(4));
+    const arg3te = Number((combined * (1 - variance)).toFixed(4));
+
+    // Math view
+    const mathView = [
+      `Sprache: ${lang}`,
+      `Konfidenzen: [${confs.map(v=>v.toFixed(2)).join(', ')}]`,
+      `base = mean(confs) = ${base.toFixed(4)}`,
+      `maxc = ${maxc.toFixed(4)}  minc = ${minc.toFixed(4)}`,
+      `var = maxc - minc = ${variance.toFixed(4)}`,
+      `combined = clamp(QI*base + (1-IQQ)*maxc) = ${arg}`,
+      `arg = ${arg}`,
+      `xarg = ${xarg}`,
+      `arg3te = combined * (1 - var) = ${arg3te}`
+    ].join('\n');
+
+    // choose top response
+    let topIdx = 0;
+    for(let i=1;i<r.length;i++) if(r[i].conf > r[topIdx].conf) topIdx = i;
+
+    // textual interpretation (German)
+    const interpretation = [
+      `Textliche Deutung (Sprache=${lang}):`,
+      `Die kombinierte Bewertung liegt bei ${Math.round(arg*100)}% (arg).`,
+      `Die Streuung (xarg) zwischen den Respos ist ${Math.round(xarg*100)}%.`,
+      (xarg > 0.4) ? `Hinweis: Hohe Streuung → große Uneinigkeit zwischen den Antworten.` : `Hinweis: Geringe Streuung → Antworten sind relativ konsistent.`,
+      `QI (Qualität) = ${qi}, IQQ = ${iqq}. QI gewichtet die durchschnittliche Zuversicht, IQQ dämpft den Einfluss des Maximalwerts.`,
+      `Top‑Antwort (#${topIdx+1}) mit Konfidenz ${r[topIdx].conf}:`,
+      `${r[topIdx].text}`,
+      `` ,
+      `arg3te (${arg3te}) stellt eine robuste, var‑reduzierte Bewertung dar — nützlich für finale Formulierungen.`,
+      `` ,
+      `Formel (Kurz): arg = clamp(QI·mean + (1−IQQ)·max) — arg3te = arg·(1−var)`
+    ].join('\n');
+
+    $('result').textContent = mathView;
+    $('explain').textContent = interpretation;
+
+    // return object for export
+    return { lang, responses: r, qi, iqq, base, maxc, minc, var: variance, arg, xarg, arg3te, top: topIdx+1 };
+  }
+
+  $('compute').addEventListener('click', ()=> compute());
+
+  $('export').addEventListener('click', ()=>{
+    const data = compute();
+    const blob = new Blob([JSON.stringify(data,null,2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'eval-result.json'; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // initial compute
+  compute();
+</script>
+</body>
+</html>
