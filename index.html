@@ -71,191 +71,103 @@ Ein großer Dank geht an alle Haci(s) — an die Community, Mitdenker, Tester un
   </div>
 
 <script type="module">
-export function createOrbitController(opts={}) {
+/* -------------------------
+   Orbit controller (inline module)
+   ------------------------- */
+function createOrbitController(opts = {}) {
   const canvas = opts.canvas || document.querySelector('canvas');
-  let running = false, rafId=null, last = performance.now();
-  const sink = opts.sink || { pos:{x:100,y:100}, radius:40, strength:120, energy:0 };
-  const source = opts.source || { pos:{x:300,y:100}, radius:8, emissionRate:1, energy:50 };
-  function step(now){
-    const dt = (now - last)/1000; last=now;
-    // gentle rotation for demo
-    const t = now*0.001;
-    const cx = canvas.clientWidth/2, cy = canvas.clientHeight/2;
-    sink.pos.x = cx + Math.cos(t*0.6)*120; sink.pos.y = cy + Math.sin(t*0.6)*60;
-    source.pos.x = cx + Math.cos(t*0.9+1.2)*200; source.pos.y = cy + Math.sin(t*0.9+1.2)*90;
-    if(typeof opts.renderCallback === 'function') opts.renderCallback();
-    if(running) rafId = requestAnimationFrame(step);
+  let running = false, rafId = null, last = performance.now();
+  const sink = opts.sink || { pos: { x: 100, y: 100 }, radius: 40, strength: 120, energy: 0 };
+  const source = opts.source || { pos: { x: 300, y: 100 }, radius: 8, emissionRate: 1, energy: 50 };
+  const ROTATION_BASE = 0.8;
+  const DAMPING = 0.06;
+  let angle = 0;
+
+  function ensureAtomOrigins(atoms){
+    if(!atoms) return;
+    if(!atoms._orig) atoms._orig = atoms.map(a => ({ x: a.pos.x, y: a.pos.y }));
   }
+
+  function updateAtoms(dt, getAtoms, lastEvalArg3te) {
+    const atoms = getAtoms ? getAtoms() : null;
+    if(!atoms || !atoms.length) return;
+    ensureAtomOrigins(atoms);
+    const speed = typeof lastEvalArg3te === 'number' ? (0.5 + lastEvalArg3te * 1.5) : ROTATION_BASE;
+    angle += dt * speed;
+    atoms.forEach((a, idx) => {
+      const o = atoms._orig[idx] || a.pos;
+      const amp = 3 + (a.mass || 0) * 3;
+      const phase = idx * 0.37;
+      a.pos.x = o.x + Math.cos(angle * (1 + (idx % 5) * 0.03) + phase) * amp;
+      a.pos.y = o.y + Math.sin(angle * (0.9 + (idx % 7) * 0.02) + phase * 1.2) * (amp * 0.6);
+    });
+  }
+
+  function updateSinkSource(now) {
+    if(!canvas) return;
+    const t = now * 0.001;
+    const cx = canvas.clientWidth * 0.5;
+    const cy = canvas.clientHeight * 0.5;
+    sink.pos.x = cx + Math.cos(t * 0.6) * 120;
+    sink.pos.y = cy + Math.sin(t * 0.6) * 60;
+    source.pos.x = cx + Math.cos(t * 0.9 + 1.2) * 200;
+    source.pos.y = cy + Math.sin(t * 0.9 + 1.2) * 90;
+  }
+
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
+    let lastEvalArg3te = null;
+    if (typeof opts.getLastEval === 'function') {
+      try { lastEvalArg3te = opts.getLastEval(); } catch (e) {}
+    }
+    updateAtoms(dt, opts.getAtoms, lastEvalArg3te);
+    updateSinkSource(now);
+    if (typeof opts.renderCallback === 'function') {
+      try { opts.renderCallback(); } catch (e) { console.warn('renderCallback error', e); }
+    }
+    if (running) rafId = requestAnimationFrame(frame);
+  }
+
   return {
-    start(){ if(running) return; running=true; last=performance.now(); rafId=requestAnimationFrame(step); },
+    start(){ if(running) return; running=true; last=performance.now(); rafId=requestAnimationFrame(frame); },
     stop(){ running=false; if(rafId) cancelAnimationFrame(rafId); rafId=null; },
-    setSink(s){ Object.assign(sink,s); },
+    setSink(s){ Object.assign(sink, s); },
     getSink(){ return sink; },
-    setSource(s){ Object.assign(source,s); },
+    setSource(s){ Object.assign(source, s); },
     getSource(){ return source; },
-    setMode(m){ /* noop for minimal */ }
+    setMode(m){ /*noop*/ }
   };
 }
-function removeController(){
-  const ctrl = controllers.pop();
-  if(!ctrl) return;
-  ctrl.stop();
-  return ctrl;
-}
-let juggleIntervalId = null;
-function startJuggle(ms = 2000){
-  if(controllers.length <= 1) return;
-  juggleIntervalId = setInterval(()=>{
-    const sinks = controllers.map(c=>c.getSink());
-    const sources = controllers.map(c=>c.getSource());
-    const rotSinks = sinks.slice(1).concat(sinks.slice(0,1));
-    const rotSources = sources.slice(1).concat(sources.slice(0,1));
-    controllers.forEach((c, idx) => { c.setSink(rotSinks[idx]); c.setSource(rotSources[idx]); });
-  }, ms);
-}
-function stopJuggle(){ if(juggleIntervalId){ clearInterval(juggleIntervalId); juggleIntervalId = null; } }
 
-/* Wait for DOM and canvas to be sized before creating controllers */
-window.addEventListener('load', () => {
-  const canvas = document.getElementById('viz');
-  const getAtoms = () => window.lastPayload && window.lastPayload.atoms ? window.lastPayload.atoms : [];
-
-  // create two controllers after canvas setup
-  const ctrl1 = addController(canvas, getAtoms, { mode:'orbit' });
-  const ctrl2 = addController(canvas, getAtoms, { mode:'orbit' });
-  ctrl1.start(); ctrl2.start();
-
-  // expose helpers
-  window.ATOM_CONTROLLERS = controllers;
-  window.ATOM_ADD_CTRL = () => { const c = addController(canvas, getAtoms); c.start(); return c; };
-  window.ATOM_REMOVE_CTRL = removeController;
-  window.ATOM_START_JUGGLE = () => startJuggle(1800);
-  window.ATOM_STOP_JUGGLE = stopJuggle;
-  window.ATOM_SET_MODE = (idx, mode) => { if(controllers[idx]) controllers[idx].setMode(mode); };
-
-  // optional: create small UI controls
-  const cbar = document.createElement('div');
-  cbar.style.marginTop = '8px';
-  cbar.innerHTML = `<button id="addCtrlBtn">Add Ctrl</button>
-                    <button id="rmCtrlBtn">Remove Ctrl</button>
-                    <button id="startJBtn">Start Juggle</button>
-                    <button id="stopJBtn">Stop Juggle</button>`;
-  document.querySelector('.card').appendChild(cbar);
-  document.getElementById('addCtrlBtn').onclick = () => window.ATOM_ADD_CTRL();
-  document.getElementById('rmCtrlBtn').onclick = () => window.ATOM_REMOVE_CTRL();
-  document.getElementById('startJBtn').onclick = () => window.ATOM_START_JUGGLE();
-  document.getElementById('stopJBtn').onclick = () => window.ATOM_STOP_JUGGLE();
-});
-</script>
-    getAtoms: getAtomsFn,
-    renderCallback: () => renderScene(getAtomsFn() || [], [ctrl.getSink()], [ctrl.getSource()], GOLEM_PUBLISHER.list()),
-    getLastEval: () => (window.lastPayload?.eval?.arg3te ?? null),
-    mode: opts.mode || 'orbit'
-  });
-  controllers.push(ctrl);
-  return ctrl;
-}
-
-// remove last controller
-function removeController(){
-  const ctrl = controllers.pop();
-  if(!ctrl) return;
-  ctrl.stop();
-  return ctrl;
-}
-
-// simple juggle: rotate sinks+sources between controllers every interval ms
-let juggleIntervalId = null;
-function startJuggle(ms = 2000){
-  if(controllers.length <= 1) return;
-  let i = 0;
-  juggleIntervalId = setInterval(()=>{
-    i = (i+1) % controllers.length;
-    // rotate sink positions: take sink from next controller and assign to current
-    const sinks = controllers.map(c=>c.getSink());
-    const sources = controllers.map(c=>c.getSource());
-    // rotate arrays by one
-    const rotSinks = sinks.slice(1).concat(sinks.slice(0,1));
-    const rotSources = sources.slice(1).concat(sources.slice(0,1));
-    controllers.forEach((c, idx) => {
-      c.setSink(rotSinks[idx]);
-      c.setSource(rotSources[idx]);
-    });
-  }, ms);
-}
-function stopJuggle(){
-  if(juggleIntervalId) { clearInterval(juggleIntervalId); juggleIntervalId = null; }
-}
-
-// Example usage hooking into your page:
-// assume canvas = document.getElementById('viz'), getAtoms = () => window.lastPayload?.atoms
-const canvas = document.getElementById('viz');
-const getAtoms = () => window.lastPayload && window.lastPayload.atoms ? window.lastPayload.atoms : [];
-// Add two controllers by default
-const ctrl1 = addController(canvas, getAtoms, { mode:'orbit' });
-const ctrl2 = addController(canvas, getAtoms, { mode:'orbit' });
-ctrl1.start(); ctrl2.start();
-
-// expose controls globally for console quick testing
-window.ATOM_CONTROLLERS = controllers;
-window.ATOM_ADD_CTRL = () => { const c = addController(canvas, getAtoms); c.start(); return c; };
-window.ATOM_REMOVE_CTRL = removeController;
-window.ATOM_START_JUGGLE = () => startJuggle(1800);
-window.ATOM_STOP_JUGGLE = stopJuggle;
-window.ATOM_SET_MODE = (idx, mode) => { if(controllers[idx]) controllers[idx].setMode(mode); };
-  
-  
-  
-  
-  /* =============================
-   Functions index — Module demo
-   - vectorToAtoms
-   - evaluateAtoms
-   - multiscalePipeline / expandToLevel
-   - GOLEM_PUBLISHER (simple)
-   ============================= */
-
-/* Safe dynamic import for triangle.js if available */
+/* -------------------------
+   Core functions & helpers
+   ------------------------- */
 let triangleModule = null;
 async function tryLoadTriangle(){
   try{
     triangleModule = await import('./triangle.js');
-    console.info('triangle.js loaded:', triangleModule);
     return triangleModule;
   }catch(e){
-    console.warn('triangle.js not found or failed to load:', e);
     triangleModule = null;
     return null;
   }
 }
-
-/* -------------------------
-   Utility helpers
-   ------------------------- */
 function clamp(v,min=0,max=1){ return Math.max(min, Math.min(max, v)); }
 function mean(arr){ if(!arr || arr.length===0) return 0; return arr.reduce((a,b)=>a+b,0)/arr.length; }
 
-/* -------------------------
-   Core: vectorToAtoms
-   input: vectors || mask3x3
-   - if vectors provided (array of {x,y,dir,len}), map to atoms
-   - if mask3x3, map cell->atom with pos relative
-   returns atoms: [{id,pos:{x,y},mass,energy,provenance}]
-   ------------------------- */
 function vectorToAtoms(input, options = {}){
   const atoms = [];
   const now = Date.now();
   if(Array.isArray(input) && input.length && input[0] && typeof input[0].x === 'number'){
-    // assume vector list
     input.forEach((v,i)=>{
       const mass = options.massScale ? (v.len || 1) * options.massScale : (v.len || 1);
       const energy = mass * (Math.abs(v.len||1) * 0.5);
       atoms.push({ id: `atom-v-${now}-${i}`, pos:{x:v.x, y:v.y}, mass, energy, prov: { source: 'vectors', idx:i } });
     });
   } else if(Array.isArray(input) && input.length===3 && Array.isArray(input[0])){
-    // mask3x3 expected: rows x cols (3x3)
     const mask = input;
-    const w = 300, h = 300; // virtual area for atom placement
+    const w = 300, h = 300;
     for(let r=0;r<3;r++){
       for(let c=0;c<3;c++){
         const v = Number(mask[r][c]) || 0;
@@ -267,16 +179,10 @@ function vectorToAtoms(input, options = {}){
         atoms.push({ id:`atom-m-${r}-${c}-${now}`, pos:{x:cx, y:cy}, mass, energy, prov:{source:'mask3x3', r, c} });
       }
     }
-  } else {
-    // fallback: empty
   }
   return atoms;
 }
 
-/* -------------------------
-   Evaluation: evaluateAtoms
-   - computes arg, xarg, arg3te per a simple scheme
-   ------------------------- */
 function evaluateAtoms(atoms, opts = {}){
   const energies = atoms.map(a=>a.energy || 0);
   const argRaw = mean(energies);
@@ -287,13 +193,8 @@ function evaluateAtoms(atoms, opts = {}){
   return { arg: Number(arg.toFixed(4)), xarg: Number(xargNorm.toFixed(4)), arg3te, count: atoms.length, energies };
 }
 
-/* -------------------------
-   Multiscale: expandToLevel / aggregateMatrixStats
-   - simple kronecker expand (tile ones)
-   ------------------------- */
 const G = 3;
 function onesTile(base = G){ return Array.from({length:base},()=>Array.from({length:base},()=>1)); }
-
 function kroneckerExpand(smallMatrix, tileMatrix){
   const out = [];
   for(let i=0;i<smallMatrix.length;i++){
@@ -309,15 +210,11 @@ function kroneckerExpand(smallMatrix, tileMatrix){
   }
   return out;
 }
-
 function expandToLevel(baseMatrix, levels=2, base=G){
   let mat = baseMatrix;
-  for(let k=1;k<levels;k++){
-    mat = kroneckerExpand(mat, onesTile(base));
-  }
+  for(let k=1;k<levels;k++) mat = kroneckerExpand(mat, onesTile(base));
   return mat;
 }
-
 function aggregateMatrixStats(mat){
   let sum=0,cnt=0,max=-Infinity,min=Infinity;
   for(let r=0;r<mat.length;r++){
@@ -327,7 +224,6 @@ function aggregateMatrixStats(mat){
   }
   return { rows: mat.length, cols: mat[0].length, mean: cnt?sum/cnt:0, max, min, count:cnt };
 }
-
 function multiscalePipeline(mask3x3, levels=3){
   const results = [];
   for(let L=1; L<=levels; L++){
@@ -341,10 +237,6 @@ function multiscalePipeline(mask3x3, levels=3){
   return { results, conservative, robust };
 }
 
-/* -------------------------
-   GOLEM_PUBLISHER (simple)
-   - publishes events to localStorage + console
-   ------------------------- */
 const GOLEM_PUBLISHER = {
   publish(event){
     event = Object.assign({ time: Date.now() }, event);
@@ -355,9 +247,7 @@ const GOLEM_PUBLISHER = {
     console.info('GOLEM publish:', event);
     return event;
   },
-  list(){
-    return JSON.parse(localStorage.getItem('golem:events') || '[]');
-  },
+  list(){ return JSON.parse(localStorage.getItem('golem:events') || '[]'); },
   clear(){ localStorage.removeItem('golem:events'); }
 };
 
@@ -378,111 +268,151 @@ setupViz();
 function renderScene(atoms, sinks=[], sources=[], events=[]){
   ctx.clearRect(0,0,canvas.clientWidth, canvas.clientHeight);
   ctx.fillStyle = '#000'; ctx.fillRect(0,0,canvas.clientWidth, canvas.clientHeight);
-  // draw sinks
   sinks.forEach(s=>{
     ctx.fillStyle = 'rgba(0,0,0,1)';
     ctx.beginPath(); ctx.arc(s.pos.x, s.pos.y, s.radius, 0, Math.PI*2); ctx.fill();
     ctx.strokeStyle='rgba(108,204,255,0.2)'; ctx.beginPath(); ctx.arc(s.pos.x, s.pos.y, s.radius*1.6,0,Math.PI*2); ctx.stroke();
   });
-  // draw sources
   sources.forEach(s=>{
     ctx.fillStyle='rgba(255,200,80,1)'; ctx.beginPath(); ctx.arc(s.pos.x, s.pos.y, s.radius,0,Math.PI*2); ctx.fill();
   });
-  // draw atoms
   atoms.forEach(a=>{
     const sz = Math.max(2, Math.min(12, a.mass*8));
     ctx.fillStyle='rgba(150,220,255,0.95)'; ctx.beginPath(); ctx.arc(a.pos.x, a.pos.y, sz, 0, Math.PI*2); ctx.fill();
   });
-  // events
   events.slice(-20).forEach(ev=>{
     ctx.fillStyle='rgba(255,100,100,0.9)'; if(ev.star && ev.star.pos){ ctx.beginPath(); ctx.arc(ev.star.pos.x, ev.star.pos.y, 6,0,Math.PI*2); ctx.fill(); }
   });
 }
 
 /* -------------------------
-   Demo workflow state
+   Controller orchestration + UI wiring
    ------------------------- */
-let lastPayload = null;
-let demoSink = { id:'A', pos:{x:200,y:160}, radius:40, strength:120, energy:0 };
-let demoSource = { id:'B', pos:{x:420,y:120}, radius:8, emissionRate:1.0, energy:50 };
+const controllers = [];
+function makeDefaultSink(i, canvas){
+  const cx = canvas.clientWidth/2, cy = canvas.clientHeight/2;
+  return { id:`A${i}`, pos:{ x: cx + Math.cos(i)*120, y: cy + Math.sin(i)*80 }, radius:40, strength:120, energy:0 };
+}
+function makeDefaultSource(i, canvas){
+  const cx = canvas.clientWidth/2, cy = canvas.clientHeight/2;
+  return { id:`B${i}`, pos:{ x: cx + Math.cos(i+1.2)*200, y: cy + Math.sin(i+1.2)*90 }, radius:8, emissionRate:1.0, energy:50 };
+}
+function addController(canvas, getAtomsFn, opts = {}) {
+  const idx = controllers.length;
+  const sink = opts.sink || makeDefaultSink(idx, canvas);
+  const source = opts.source || makeDefaultSource(idx, canvas);
+  const ctrl = createOrbitController({
+    canvas, sink, source, getAtoms: getAtomsFn,
+    renderCallback: () => renderScene(getAtomsFn() || [], [ctrl.getSink()], [ctrl.getSource()], GOLEM_PUBLISHER.list()),
+    getLastEval: () => (window.lastPayload?.eval?.arg3te ?? null),
+    mode: opts.mode || 'orbit'
+  });
+  controllers.push(ctrl);
+  return ctrl;
+}
+function removeController(){
+  const ctrl = controllers.pop();
+  if(!ctrl) return;
+  ctrl.stop();
+  return ctrl;
+}
+let juggleIntervalId = null;
+function startJuggle(ms = 2000){
+  if(controllers.length <= 1) return;
+  juggleIntervalId = setInterval(()=>{
+    const sinks = controllers.map(c=>c.getSink());
+    const sources = controllers.map(c=>c.getSource());
+    const rotSinks = sinks.slice(1).concat(sinks.slice(0,1));
+    const rotSources = sources.slice(1).concat(sources.slice(0,1));
+    controllers.forEach((c, idx) => { c.setSink(rotSinks[idx]); c.setSource(rotSources[idx]); });
+  }, ms);
+}
+function stopJuggle(){ if(juggleIntervalId){ clearInterval(juggleIntervalId); juggleIntervalId = null; } }
 
-/* -------------------------
-   Button wiring
-   ------------------------- */
-document.getElementById('btnLoadTriangle').addEventListener('click', async ()=>{
-  await tryLoadTriangle();
-  document.getElementById('out').textContent = triangleModule ? 'triangle.js geladen' : 'triangle.js nicht vorhanden — Fallbacks aktiv';
-});
+/* Bind UI and create controllers after load */
+window.addEventListener('load', () => {
+  const canvas = document.getElementById('viz');
+  const getAtoms = () => window.lastPayload && window.lastPayload.atoms ? window.lastPayload.atoms : [];
 
-document.getElementById('btnMakeAtoms').addEventListener('click', ()=>{
-  // if triangle module available, try to get mask3x3 from it
-  let mask3x3 = null;
-  if(triangleModule && triangleModule.strokesTo3x3Mask){
-    // create sample strokes via triangleModule if available, else assume triangleModule.makeTriangle exists
-    try{
-      const tri = triangleModule.makeTriangle ? triangleModule.makeTriangle({x:100,y:80},{x:420,y:120},{x:260,y:380}) : null;
-      if(tri && triangleModule.triangleToMask) mask3x3 = triangleModule.triangleToMask(tri);
-    }catch(e){ mask3x3 = null; }
-  }
-  // fallback: simple sample mask
-  if(!mask3x3) mask3x3 = [
-    [0.9,0.6,0.4],
-    [0.3,0.1,0.2],
-    [0.5,0.7,1.0]
-  ];
-  const atoms = vectorToAtoms(mask3x3, { massScale: 1.0 });
-  lastPayload = { action:'vectorToAtoms', mask3x3, atoms, timestamp: new Date().toISOString() };
-  document.getElementById('out').textContent = JSON.stringify(lastPayload, null, 2);
-  renderScene(atoms, [demoSink], [demoSource], GOLEM_PUBLISHER.list());
-});
+  // create two controllers by default
+  const ctrl1 = addController(canvas, getAtoms, { mode:'orbit' });
+  const ctrl2 = addController(canvas, getAtoms, { mode:'orbit' });
+  ctrl1.start(); ctrl2.start();
 
-document.getElementById('btnEvaluate').addEventListener('click', ()=>{
-  if(!lastPayload || !lastPayload.atoms){ alert('Zuerst vectorToAtoms ausführen'); return; }
-  const evalRes = evaluateAtoms(lastPayload.atoms, { refEnergy: 10 });
-  lastPayload.eval = evalRes;
-  document.getElementById('out').textContent = JSON.stringify(lastPayload, null, 2);
-});
+  // small control bar
+  const cbar = document.createElement('div');
+  cbar.style.marginTop = '8px';
+  cbar.innerHTML = `<button id="addCtrlBtn">Add Ctrl</button>
+                    <button id="rmCtrlBtn">Remove Ctrl</button>
+                    <button id="startJBtn">Start Juggle</button>
+                    <button id="stopJBtn">Stop Juggle</button>`;
+  document.querySelector('.card').appendChild(cbar);
+  document.getElementById('addCtrlBtn').onclick = () => { const c = addController(canvas, getAtoms); c.start(); return c; };
+  document.getElementById('rmCtrlBtn').onclick = () => removeController();
+  document.getElementById('startJBtn').onclick = () => startJuggle(1800);
+  document.getElementById('stopJBtn').onclick = () => stopJuggle();
 
-document.getElementById('btnMulti').addEventListener('click', ()=>{
-  if(!lastPayload || !lastPayload.mask3x3){ alert('Zuerst vectorToAtoms ausführen'); return; }
-  const ms = multiscalePipeline(lastPayload.mask3x3, 3);
-  lastPayload.multiscale = ms;
-  document.getElementById('out').textContent = JSON.stringify(lastPayload, null, 2);
-});
-
-document.getElementById('btnPublish').addEventListener('click', ()=>{
-  if(!lastPayload || !lastPayload.eval){ alert('Zuerst evaluieren (evaluateAtoms)'); return; }
-  // publish if arg3te above threshold or other rules
-  const rule = lastPayload.eval.arg3te >= 0.5 || (lastPayload.multiscale && lastPayload.multiscale.conservative >= 0.4);
-  if(rule){
-    const ev = GOLEM_PUBLISHER.publish({ type:'starPublish', payload:lastPayload, author:'iki1uc wieimmer' });
-    // mark demo sink energy and show
-    demoSink.energy = Math.max(0, demoSink.energy - 0) + 10;
-    // visualize event spawn star if multiscale produced star
-    const star = { id:'star-'+Date.now(), pos:{x: demoSink.pos.x + (Math.random()-0.5)*80, y: demoSink.pos.y + (Math.random()-0.5)*80}, energy:12 };
-    lastPayload.spawnedStar = star;
-    lastPayload.event = ev;
+  // bind main buttons (these handlers expect functions defined in this module)
+  document.getElementById('btnLoadTriangle').addEventListener('click', async ()=>{
+    await tryLoadTriangle();
+    document.getElementById('out').textContent = triangleModule ? 'triangle.js geladen' : 'triangle.js nicht vorhanden — Fallbacks aktiv';
+  });
+  document.getElementById('btnMakeAtoms').addEventListener('click', ()=>{
+    let mask3x3 = null;
+    if(triangleModule && triangleModule.strokesTo3x3Mask){
+      try{
+        const tri = triangleModule.makeTriangle ? triangleModule.makeTriangle({x:100,y:80},{x:420,y:120},{x:260,y:380}) : null;
+        if(tri && triangleModule.triangleToMask) mask3x3 = triangleModule.triangleToMask(tri);
+      }catch(e){ mask3x3 = null; }
+    }
+    if(!mask3x3) mask3x3 = [
+      [0.9,0.6,0.4],
+      [0.3,0.1,0.2],
+      [0.5,0.7,1.0]
+    ];
+    const atoms = vectorToAtoms(mask3x3, { massScale: 1.0 });
+    lastPayload = { action:'vectorToAtoms', mask3x3, atoms, timestamp: new Date().toISOString() };
     document.getElementById('out').textContent = JSON.stringify(lastPayload, null, 2);
-    renderScene(lastPayload.atoms || [], [demoSink], [demoSource], GOLEM_PUBLISHER.list());
-    alert('GOLEM published event (local)');
-  } else {
-    alert('Publish-Regel nicht erfüllt (arg3te zu niedrig)');
-  }
-});
+    renderScene(atoms, [ctrl1.getSink()], [ctrl1.getSource()], GOLEM_PUBLISHER.list());
+  });
+  document.getElementById('btnEvaluate').addEventListener('click', ()=>{
+    if(!lastPayload || !lastPayload.atoms){ alert('Zuerst vectorToAtoms ausführen'); return; }
+    const evalRes = evaluateAtoms(lastPayload.atoms, { refEnergy: 10 });
+    lastPayload.eval = evalRes;
+    document.getElementById('out').textContent = JSON.stringify(lastPayload, null, 2);
+  });
+  document.getElementById('btnMulti').addEventListener('click', ()=>{
+    if(!lastPayload || !lastPayload.mask3x3){ alert('Zuerst vectorToAtoms ausführen'); return; }
+    const ms = multiscalePipeline(lastPayload.mask3x3, 3);
+    lastPayload.multiscale = ms;
+    document.getElementById('out').textContent = JSON.stringify(lastPayload, null, 2);
+  });
+  document.getElementById('btnPublish').addEventListener('click', ()=>{
+    if(!lastPayload || !lastPayload.eval){ alert('Zuerst evaluieren (evaluateAtoms)'); return; }
+    const rule = lastPayload.eval.arg3te >= 0.5 || (lastPayload.multiscale && lastPayload.multiscale.conservative >= 0.4);
+    if(rule){
+      const ev = GOLEM_PUBLISHER.publish({ type:'starPublish', payload:lastPayload, author:'iki1uc wieimmer' });
+      lastPayload.event = ev;
+      document.getElementById('out').textContent = JSON.stringify(lastPayload, null, 2);
+      renderScene(lastPayload.atoms || [], [ctrl1.getSink()], [ctrl1.getSource()], GOLEM_PUBLISHER.list());
+      alert('GOLEM published event (local)');
+    } else {
+      alert('Publish-Regel nicht erfüllt (arg3te zu niedrig)');
+    }
+  });
+  document.getElementById('btnExport').addEventListener('click', ()=>{
+    if(!lastPayload) { alert('Keine Daten zum Export'); return; }
+    const blob = new Blob([JSON.stringify(lastPayload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'atom-functions-payload.json'; a.click(); URL.revokeObjectURL(url);
+  });
+  document.getElementById('btnClear').addEventListener('click', ()=>{
+    lastPayload = null; document.getElementById('out').textContent = 'cleared'; GOLEM_PUBLISHER.clear(); renderScene([], [], [], []);
+  });
 
-document.getElementById('btnExport').addEventListener('click', ()=>{
-  if(!lastPayload) { alert('Keine Daten zum Export'); return; }
-  const blob = new Blob([JSON.stringify(lastPayload, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'atom-functions-payload.json'; a.click(); URL.revokeObjectURL(url);
+  // initial render
+  renderScene([], [ctrl1.getSink()], [ctrl1.getSource()], GOLEM_PUBLISHER.list());
 });
-
-document.getElementById('btnClear').addEventListener('click', ()=>{
-  lastPayload = null; document.getElementById('out').textContent = 'cleared'; GOLEM_PUBLISHER.clear(); renderScene([], [], [], []);
-});
-
-/* initial render */
-renderScene([], [demoSink], [demoSource], GOLEM_PUBLISHER.list());
 </script>
 </body>
 </html>
