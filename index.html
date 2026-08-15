@@ -71,35 +71,30 @@ Ein großer Dank geht an alle Haci(s) — an die Community, Mitdenker, Tester un
   </div>
 
 <script type="module">
-import { createOrbitController } from './orbit.js';
-
-/* --- Controller container --- */
-const controllers = [];
-
-function makeDefaultSink(i, canvas){
-  const cx = canvas.clientWidth/2, cy = canvas.clientHeight/2;
-  return { id:`A${i}`, pos:{ x: cx + Math.cos(i)*120, y: cy + Math.sin(i)*80 }, radius:40, strength:120, energy:0 };
-}
-function makeDefaultSource(i, canvas){
-  const cx = canvas.clientWidth/2, cy = canvas.clientHeight/2;
-  return { id:`B${i}`, pos:{ x: cx + Math.cos(i+1.2)*200, y: cy + Math.sin(i+1.2)*90 }, radius:8, emissionRate:1.0, energy:50 };
-}
-
-function addController(canvas, getAtomsFn, opts = {}) {
-  const idx = controllers.length;
-  const sink = opts.sink || makeDefaultSink(idx, canvas);
-  const source = opts.source || makeDefaultSource(idx, canvas);
-  const ctrl = createOrbitController({
-    canvas,
-    sink,
-    source,
-    getAtoms: getAtomsFn,
-    renderCallback: () => renderScene(getAtomsFn() || [], [ctrl.getSink()], [ctrl.getSource()], GOLEM_PUBLISHER.list()),
-    getLastEval: () => (window.lastPayload?.eval?.arg3te ?? null),
-    mode: opts.mode || 'orbit'
-  });
-  controllers.push(ctrl);
-  return ctrl;
+export function createOrbitController(opts={}) {
+  const canvas = opts.canvas || document.querySelector('canvas');
+  let running = false, rafId=null, last = performance.now();
+  const sink = opts.sink || { pos:{x:100,y:100}, radius:40, strength:120, energy:0 };
+  const source = opts.source || { pos:{x:300,y:100}, radius:8, emissionRate:1, energy:50 };
+  function step(now){
+    const dt = (now - last)/1000; last=now;
+    // gentle rotation for demo
+    const t = now*0.001;
+    const cx = canvas.clientWidth/2, cy = canvas.clientHeight/2;
+    sink.pos.x = cx + Math.cos(t*0.6)*120; sink.pos.y = cy + Math.sin(t*0.6)*60;
+    source.pos.x = cx + Math.cos(t*0.9+1.2)*200; source.pos.y = cy + Math.sin(t*0.9+1.2)*90;
+    if(typeof opts.renderCallback === 'function') opts.renderCallback();
+    if(running) rafId = requestAnimationFrame(step);
+  }
+  return {
+    start(){ if(running) return; running=true; last=performance.now(); rafId=requestAnimationFrame(step); },
+    stop(){ running=false; if(rafId) cancelAnimationFrame(rafId); rafId=null; },
+    setSink(s){ Object.assign(sink,s); },
+    getSink(){ return sink; },
+    setSource(s){ Object.assign(source,s); },
+    getSource(){ return source; },
+    setMode(m){ /* noop for minimal */ }
+  };
 }
 function removeController(){
   const ctrl = controllers.pop();
