@@ -70,14 +70,12 @@ Ein großer Dank geht an alle Haci(s) — an die Community, Mitdenker, Tester un
     </div>
   </div>
 
-<script>
-// import the modular orbit controller
+<script type="module">
 import { createOrbitController } from './orbit.js';
 
-// container for controllers
+/* --- Controller container --- */
 const controllers = [];
 
-// helper to create default demo sink/source
 function makeDefaultSink(i, canvas){
   const cx = canvas.clientWidth/2, cy = canvas.clientHeight/2;
   return { id:`A${i}`, pos:{ x: cx + Math.cos(i)*120, y: cy + Math.sin(i)*80 }, radius:40, strength:120, energy:0 };
@@ -87,15 +85,6 @@ function makeDefaultSource(i, canvas){
   return { id:`B${i}`, pos:{ x: cx + Math.cos(i+1.2)*200, y: cy + Math.sin(i+1.2)*90 }, radius:8, emissionRate:1.0, energy:50 };
 }
 
-// render callback uses your existing renderScene - adapt if different
-function makeRenderCallback(getAtoms, ctrl){
-  return () => {
-    const atoms = getAtoms() || [];
-    renderScene(atoms, [ctrl.getSink()], [ctrl.getSource()], GOLEM_PUBLISHER.list());
-  };
-}
-
-// create and register a new controller
 function addController(canvas, getAtomsFn, opts = {}) {
   const idx = controllers.length;
   const sink = opts.sink || makeDefaultSink(idx, canvas);
@@ -104,6 +93,65 @@ function addController(canvas, getAtomsFn, opts = {}) {
     canvas,
     sink,
     source,
+    getAtoms: getAtomsFn,
+    renderCallback: () => renderScene(getAtomsFn() || [], [ctrl.getSink()], [ctrl.getSource()], GOLEM_PUBLISHER.list()),
+    getLastEval: () => (window.lastPayload?.eval?.arg3te ?? null),
+    mode: opts.mode || 'orbit'
+  });
+  controllers.push(ctrl);
+  return ctrl;
+}
+function removeController(){
+  const ctrl = controllers.pop();
+  if(!ctrl) return;
+  ctrl.stop();
+  return ctrl;
+}
+let juggleIntervalId = null;
+function startJuggle(ms = 2000){
+  if(controllers.length <= 1) return;
+  juggleIntervalId = setInterval(()=>{
+    const sinks = controllers.map(c=>c.getSink());
+    const sources = controllers.map(c=>c.getSource());
+    const rotSinks = sinks.slice(1).concat(sinks.slice(0,1));
+    const rotSources = sources.slice(1).concat(sources.slice(0,1));
+    controllers.forEach((c, idx) => { c.setSink(rotSinks[idx]); c.setSource(rotSources[idx]); });
+  }, ms);
+}
+function stopJuggle(){ if(juggleIntervalId){ clearInterval(juggleIntervalId); juggleIntervalId = null; } }
+
+/* Wait for DOM and canvas to be sized before creating controllers */
+window.addEventListener('load', () => {
+  const canvas = document.getElementById('viz');
+  const getAtoms = () => window.lastPayload && window.lastPayload.atoms ? window.lastPayload.atoms : [];
+
+  // create two controllers after canvas setup
+  const ctrl1 = addController(canvas, getAtoms, { mode:'orbit' });
+  const ctrl2 = addController(canvas, getAtoms, { mode:'orbit' });
+  ctrl1.start(); ctrl2.start();
+
+  // expose helpers
+  window.ATOM_CONTROLLERS = controllers;
+  window.ATOM_ADD_CTRL = () => { const c = addController(canvas, getAtoms); c.start(); return c; };
+  window.ATOM_REMOVE_CTRL = removeController;
+  window.ATOM_START_JUGGLE = () => startJuggle(1800);
+  window.ATOM_STOP_JUGGLE = stopJuggle;
+  window.ATOM_SET_MODE = (idx, mode) => { if(controllers[idx]) controllers[idx].setMode(mode); };
+
+  // optional: create small UI controls
+  const cbar = document.createElement('div');
+  cbar.style.marginTop = '8px';
+  cbar.innerHTML = `<button id="addCtrlBtn">Add Ctrl</button>
+                    <button id="rmCtrlBtn">Remove Ctrl</button>
+                    <button id="startJBtn">Start Juggle</button>
+                    <button id="stopJBtn">Stop Juggle</button>`;
+  document.querySelector('.card').appendChild(cbar);
+  document.getElementById('addCtrlBtn').onclick = () => window.ATOM_ADD_CTRL();
+  document.getElementById('rmCtrlBtn').onclick = () => window.ATOM_REMOVE_CTRL();
+  document.getElementById('startJBtn').onclick = () => window.ATOM_START_JUGGLE();
+  document.getElementById('stopJBtn').onclick = () => window.ATOM_STOP_JUGGLE();
+});
+</script>
     getAtoms: getAtomsFn,
     renderCallback: () => renderScene(getAtomsFn() || [], [ctrl.getSink()], [ctrl.getSource()], GOLEM_PUBLISHER.list()),
     getLastEval: () => (window.lastPayload?.eval?.arg3te ?? null),
