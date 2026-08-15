@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sorgfalt · Punkt 2268 · persönliche Engine</title>
+<style>
+  :root{--bg:#000;--card:#071;--accent:#6cf;--fg:#bff}
+  body{background:#000;color:var(--fg);font-family:Consolas,monospace;padding:18px}
+  .wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:360px 1fr;gap:12px}
+  .card{background:#031;padding:12px;border-left:4px solid var(--accent);border-radius:8px}
+  h1{color:var(--accent);margin:0 0 8px}
+  label{display:block;margin-top:8px;font-size:13px;color:#9f9}
+  textarea{width:100%;height:68px;background:#001;border:1px solid #034;color:#cfc;padding:8px;border-radius:6px}
+  .small{font-size:13px;color:#8f8}
+  .row{display:flex;gap:8px;align-items:center;margin-top:8px}
+  input[type=range]{width:100%}
+  button{background:var(--accent);color:#000;border:none;padding:8px 10px;border-radius:6px;cursor:pointer}
+  .langBox{display:flex;flex-direction:column;gap:8px}
+  .langPanel{background:#011;padding:8px;border-radius:6px;border:1px solid rgba(108,204,255,0.06)}
+  .out{white-space:pre-wrap;background:#001;border:1px solid rgba(108,204,255,0.06);padding:10px;border-radius:6px;margin-top:8px;max-height:420px;overflow:auto}
+  .final{background:#012;border-left:4px solid #ffd54d;padding:10px;margin-top:8px;border-radius:6px}
+  footer{color:#6f6;margin-top:12px;font-size:13px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" aria-labelledby="title">
+      <h1 id="title">Sorgfalt · Punkt 2268</h1>
+      <div class="small">Persönliche Auswertung (nur für dich). 4 TMP‑Sprachen parallel. Ergebnis wird lokal unter "sorgfalt:2268" gespeichert.</div>
+
+      <label>Wähle TMP‑Preset (vier Optionen beeinflussen Default‑Gewichte):</label>
+      <div class="row">
+        <select id="tmpPreset">
+          <option value="calm">calm</option>
+          <option value="active">active</option>
+          <option value="orbit">orbit</option>
+          <option value="chaos">chaos</option>
+        </select>
+        <div class="small">Preset steuert Default QI/IQQ und Gewichtungen</div>
+      </div>
+
+      <label style="margin-top:12px">Drei Respos (je Text + Konfidenz)</label>
+      <div class="langBox">
+        <div class="langPanel">
+          <label>Respo 1 (Text)</label>
+          <textarea id="r1">Respo 1 — kurze Deutung</textarea>
+          <label class="small">Konfidenz 1: <span id="c1v">0.70</span></label>
+          <input id="c1" type="range" min="0" max="1" step="0.01" value="0.7">
+        </div>
+        <div class="langPanel">
+          <label>Respo 2 (Text)</label>
+          <textarea id="r2">Respo 2 — Alternativ</textarea>
+          <label class="small">Konfidenz 2: <span id="c2v">0.50</span></label>
+          <input id="c2" type="range" min="0" max="1" step="0.01" value="0.5">
+        </div>
+        <div class="langPanel">
+          <label>Respo 3 (Text)</label>
+          <textarea id="r3">Respo 3 — künstlerisch/interpretativ</textarea>
+          <label class="small">Konfidenz 3: <span id="c3v">0.30</span></label>
+          <input id="c3" type="range" min="0" max="1" step="0.01" value="0.3">
+        </div>
+      </div>
+
+      <label style="margin-top:10px">Globale Steuerung</label>
+      <div class="row">
+        <div style="flex:1">
+          <label>QI (Qualitätsindex)</label>
+          <input id="qi" type="range" min="0" max="1" step="0.01" value="0.65">
+        </div>
+        <div style="flex:1">
+          <label>IQQ (Qualifier / Inverse)</label>
+          <input id="iqq" type="range" min="0" max="1" step="0.01" value="0.35">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <button id="compute">Interpretieren (4‑fach)</button>
+        <button id="export">Export JSON</button>
+        <button id="clear">Löschen (lokal)</button>
+      </div>
+
+      <div class="small" style="margin-top:8px">Hinweis: Dieses Werkzeug erzeugt eine vorsichtige, konservative Aggregation (Sorgfalt) aus allen 4 TMP‑Perspektiven und speichert das Ergebnis lokal für Punkt 2268.</div>
+    </div>
+
+    <div class="card">
+      <h1>Ergebnisse & Sorgfalt</h1>
+      <div class="small">Pro Sprache: arg / xarg / arg3te + kurze Deutung. Final: konservative Sorgfalts‑Bewertung.</div>
+
+      <div id="perlang" class="out">Noch keine Auswertung.</div>
+
+      <div class="final" id="finalOut">
+        Finale Sorgfalt (konservativ) erscheint hier.
+      </div>
+    </div>
+  </div>
+
+<script>
+/* Sorgfalt Engine für Punkt 2268 — lokal, privat */
+const LANGS = ['DE','TR','EN','ES']; // vier TMP‑Sprachen
+
+// default TMP presets (influence QI/IQQ defaults and weighting strategy)
+const TMP_PRESETS = {
+  calm:  { qiBias: 0.6, iqqBias: 0.3, weight: 1.0 },
+  active:{ qiBias: 0.7, iqqBias: 0.25, weight: 1.1 },
+  orbit: { qiBias: 0.65, iqqBias: 0.35, weight: 1.0 },
+  chaos: { qiBias: 0.5, iqqBias: 0.5, weight: 0.9 }
+};
+
+const $ = id => document.getElementById(id);
+['c1','c2','c3','qi','iqq'].forEach(id=>{
+  const el = $(id);
+  el.addEventListener('input', ()=> {
+    if(id.startsWith('c')) $(id+'v').textContent = el.value;
+  });
+});
+
+// core numeric helpers
+function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
+function clamp(v,min=0,max=1){ return Math.max(min, Math.min(max, v)); }
+
+// per-language compute (uses same three respos and QI/IQQ but applies tmp preset bias)
+function computePerLang(lang, presetName, resps, qiBase, iqqBase){
+  const preset = TMP_PRESETS[presetName] || TMP_PRESETS.calm;
+  // apply biases
+  const qi = clamp(qiBase * 0.7 + preset.qiBias*0.3); // mix base with preset
+  const iqq = clamp(iqqBase * 0.7 + preset.iqqBias*0.3);
+
+  const confs = resps.map(r=>r.conf);
+  const base = mean(confs);
+  const maxc = Math.max(...confs);
+  const minc = Math.min(...confs);
+  const variance = maxc - minc;
+
+  // combined formula (as before)
+  const combined = clamp(qi*base + (1 - iqq)*maxc);
+  const arg = Number(combined.toFixed(4));
+  const xarg = Number(variance.toFixed(4));
+  const arg3te = Number((combined * (1 - variance)).toFixed(4));
+
+  // textual short de/eng mapping per language (German default)
+  const texts = {
+    DE: `(${lang}) Arg=${arg} · xarg=${xarg} · arg3te=${arg3te}`,
+    TR: `(${lang}) Arg=${arg} · xarg=${xarg} · arg3te=${arg3te}`,
+    EN: `(${lang}) Arg=${arg} · xarg=${xarg} · arg3te=${arg3te}`,
+    ES: `(${lang}) Arg=${arg} · xarg=${xarg} · arg3te=${arg3te}`
+  };
+
+  return { lang, preset: presetName, qi, iqq, base, maxc, minc, variance, arg, xarg, arg3te, summary: texts[lang] };
+}
+
+// conservative aggregation (Sorgfalt)
+// Approach: prefer conservative (risk-averse) outcome:
+// - finalArg = min(perLang.arg)  (conservative: worst-case)
+// - finalXarg = max(perLang.xarg) (take highest uncertainty)
+// - finalArg3te = min(perLang.arg3te)
+function aggregateConservative(perLangResults){
+  const args = perLangResults.map(p=>p.arg);
+  const xargs = perLangResults.map(p=>p.xarg);
+  const arg3s = perLangResults.map(p=>p.arg3te);
+  const finalArg = Number(Math.min(...args).toFixed(4));
+  const finalXarg = Number(Math.max(...xargs).toFixed(4));
+  const finalArg3te = Number(Math.min(...arg3s).toFixed(4));
+  // build a human recommendation: conservative phrasing
+  let rec = `Konservative Sorgfaltsbewertung für Punkt 2268:\n- arg (vorsichtig): ${finalArg}\n- xarg (Unsicherheit, max): ${finalXarg}\n- arg3te (robuster Wert): ${finalArg3te}\n\nEmpfehlung: `;
+  if(finalArg3te >= 0.75) rec += "Hohe Zuversicht — Ergebnis kann für Entscheidungen genutzt werden.";
+  else if(finalArg3te >= 0.5) rec += "Mittlere Zuversicht — ergänzende Prüfung empfohlen.";
+  else rec += "Niedrige Zuversicht — weitere Daten / Experteneinschätzung notwendig.";
+  return { finalArg, finalXarg, finalArg3te, recommendation: rec };
+}
+
+// store / load local
+const STORAGE_KEY = 'sorgfalt:2268';
+function saveLocal(payload){ localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); }
+function loadLocal(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); }catch(e){return null;} }
+
+// UI update
+function renderResults(perLangResults, agg){
+  const el = $('perlang');
+  el.textContent = perLangResults.map(p=>{
+    return `${p.summary}\n  preset=${p.preset} qi=${p.qi.toFixed(2)} iqq=${p.iqq.toFixed(2)} base=${p.base.toFixed(2)}\n`;
+  }).join('\n--------------------\n');
+  $('finalOut').textContent = agg.recommendation;
+}
+
+// gather inputs
+function gatherInputs(){
+  const preset = $('tmpPreset').value;
+  const resps = [
+    { text: $('r1').value.trim(), conf: Number($('c1').value) },
+    { text: $('r2').value.trim(), conf: Number($('c2').value) },
+    { text: $('r3').value.trim(), conf: Number($('c3').value) }
+  ];
+  const qi = Number($('qi').value);
+  const iqq = Number($('iqq').value);
+  return { preset, resps, qi, iqq };
+}
+
+// compute across all 4 languages
+function computeAll(){
+  const { preset, resps, qi, iqq } = gatherInputs();
+  const perLang = LANGS.map(lang => computePerLang(lang, preset, resps, qi, iqq));
+  const agg = aggregateConservative(perLang);
+  const payload = {
+    id: 2268,
+    timestamp: new Date().toISOString(),
+    preset,
+    perLang,
+    agg
+  };
+  saveLocal(payload);
+  renderResults(perLang, agg);
+  return payload;
+}
+
+// events
+$('compute').addEventListener('click', ()=> {
+  const payload = computeAll();
+  console.log('Sorgfalt payload saved (2268):', payload);
+});
+$('export').addEventListener('click', ()=>{
+  const payload = computeAll();
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='sorgfalt-2268.json'; a.click(); URL.revokeObjectURL(url);
+});
+$('clear').addEventListener('click', ()=>{
+  localStorage.removeItem(STORAGE_KEY);
+  $('perlang').textContent = 'Gelöscht.';
+  $('finalOut').textContent = 'Keine Sorgfalt vorhanden.';
+});
+
+// show previously saved if exists
+(function init(){
+  const saved = loadLocal();
+  if(saved){
+    // populate UI from saved (first preset only)
+    if(saved.preset) $('tmpPreset').value = saved.preset;
+    if(saved.perLang && saved.perLang[0]){
+      // no direct restore of responses (just show results)
+      renderResults(saved.perLang, saved.agg);
+      $('finalOut').textContent += '\n\n(zuletzt gespeichert: ' + saved.timestamp + ')';
+    }
+  }
+})();
+</script>
+
+<footer>Privat: diese Datei speichert nur lokal in deinem Browser (localStorage). Wenn du möchtest, helfe ich beim Commit in dein Repo.</footer>
+</body>
+</html>
